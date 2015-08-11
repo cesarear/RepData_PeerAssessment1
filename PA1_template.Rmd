@@ -1,22 +1,57 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+author: "Cesar Alvarez"
+date: "Sunday, August 09, 2015"
+output: html_document
+keep_md: true
 ---
-
-
+  
+  
 ## Loading and preprocessing the data
+### Reads activity.zip from current working directory
+```{r, echo=TRUE}
+actData <- read.csv(unz("activity.zip", "activity.csv"))
+```
 
+## What is mean total number of steps taken per day?  
+```{r, echo=TRUE}
+# Get total steps per day, ignore the missing values in the dataset
+stepsPerDay <- aggregate(steps ~ date, data = actData, sum, na.rm=TRUE)
 
+# Histogram of the total number of steps taken each day  
+hist(aggregate(steps ~ date, data = stepsPerDay, sum, na.rm=TRUE)$steps, main="Total number of steps per day", 
+     xlab="Steps")
+```
 
-## What is mean total number of steps taken per day?
+### Mean total number of steps taken per day  
+```{r, echo=TRUE}
+mean(stepsPerDay$steps, na.rm = TRUE)
+```
 
-
+### Median total number of steps taken per day
+```{r, echo=TRUE}
+median(stepsPerDay$steps, na.rm = TRUE)
+```
 
 ## What is the average daily activity pattern?
 
+### Time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
+```{r, echo=TRUE}
+# Aggregate steps per interval and get average number of step
+stepsPerInterval <- aggregate(steps ~ interval, data = actData, mean, na.rm=TRUE)
+```
+
+```{r, echo=TRUE}
+# Line series plot type = l of the 5-minute interval and the average number of steps
+plot(stepsPerInterval$interval, stepsPerInterval$steps, type='l', main="Average number of steps by Interval", 
+     xlab="Interval", ylab="Average number of steps")
+```
+
+### Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+```{r, echo=TRUE}
+stepsPerInterval[which.max(stepsPerInterval$steps), "interval"]
+```
 
 ## Imputing missing values
 
