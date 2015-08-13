@@ -116,4 +116,4 @@ newDS$type <- ifelse(newDS$dow %in% c("Saturday","Sunday"),"weekend","weekday")
 avgType <- aggregate(steps ~ interval + type, newDS, mean)
 xyplot(avgType$steps~avgType$interval|avgType$type,layout=(c(1,2)),type="l",
        xlab="Interval", ylab="Number of steps")
-```{r, echo=TRUE}
+```
