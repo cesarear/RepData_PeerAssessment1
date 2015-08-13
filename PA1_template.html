@@ -125,7 +125,7 @@ plot(stepsPerInterval$interval, stepsPerInterval$steps, type='l', main=&quot;Ave
 <pre class="r"><code># Create tmp DS with addtional column with mean of steps by interval
 tmp &lt;- merge(actData, aggregate(steps ~ interval, data = actData, mean, na.rm=TRUE), by=c(&quot;interval&quot;))
 
-# rewrite NAs in steps (steps.x) with mean by interval (steps.y). 
+# then rewrite NAs in steps (steps.x) with mean by interval (steps.y) and rename column with steps
 tmp[is.na(tmp$steps.x),&quot;steps.x&quot;] &lt;- tmp[is.na(tmp$steps.x),&quot;steps.y&quot;]
 names(tmp)[names(tmp) == &quot;steps.x&quot;] &lt;- &quot;steps&quot;</code></pre>
 </div>
