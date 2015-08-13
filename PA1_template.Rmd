@@ -5,11 +5,14 @@ date: "Sunday, August 09, 2015"
 output: html_document
 keep_md: true
 ---
-  
+```{r, echo=TRUE, warning=FALSE}
+library(lattice)
+```
   
 ## Loading and preprocessing the data
-### Reads activity.zip from current working directory
+
 ```{r, echo=TRUE}
+#Reads activity.zip from current working directory and extract activity.csv
 actData <- read.csv(unz("activity.zip", "activity.csv"))
 ```
 
@@ -61,19 +64,22 @@ stepsPerInterval[which.max(stepsPerInterval$steps), "interval"]
 nrow(actData[is.na(actData$steps),])
 ```
 
-### 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+### 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. 
 ```{r}
 # Create tmp DS with addtional column with mean of steps by interval
 tmp <- merge(actData, aggregate(steps ~ interval, data = actData, mean, na.rm=TRUE), by=c("interval"))
+
+# rewrite NAs in steps (steps.x) with mean by interval (steps.y). 
+tmp[is.na(tmp$steps.x),"steps.x"] <- tmp[is.na(tmp$steps.x),"steps.y"]
+names(tmp)[names(tmp) == "steps.x"] <- "steps"
 ```
 ### 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 ```{r, echo=TRUE}
-newDS <- actData
-# rewite NAs in stesp with mean by interval. mean by Interval replace NAs according with the interval
-newDS[is.na(newDS$steps),"steps"] <- tmp[is.na(tmp$steps.x),"steps.y"]
+newDS <- tmp[,c("steps","date","interval")]
+
 ```
 
-### 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+### 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. 
 ```{r, echo=TRUE}
 stepsDayClean <- aggregate(steps ~ date, data = newDS, sum, na.rm=TRUE)
 hist(aggregate(steps ~ date, data = stepsDayClean, sum, na.rm=TRUE)$steps, main="Total number of steps per day", xlab="Steps")
@@ -89,10 +95,10 @@ mean(stepsDayClean$steps, na.rm = TRUE)
 median(stepsDayClean$steps, na.rm = TRUE)
 ```
 
-Do these values differ from the estimates from the first part of the assignment?  
-*A: mean not much, median yes.*  
+### Do these values differ from the estimates from the first part of the assignment?  
+*A: mean did not change, median did change.*  
 
-What is the impact of imputing missing data on the estimates of the total daily number of steps?  
+### What is the impact of imputing missing data on the estimates of the total daily number of steps?  
 *A: small change in the median, mean is the same since no outlier were introduced, just a chenge in the distribution due to the use of mean*  
 *by interval to replace NAs.*  
   
@@ -103,8 +109,10 @@ newDS$dow <- weekdays(as.Date(newDS$date, "%Y-%m-%d"))
 newDS$type <- ifelse(newDS$dow %in% c("Saturday","Sunday"),"weekend","weekday")
 ```
 
-### 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). The plot should look something like the following, which was created using simulated data:
+### 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).  
 ```{r, echo=TRUE}
-plot(newDS$interval, newDS$steps, type='l', main="Average number of steps by Interval", 
-     xlab="Interval", ylab="Average number of steps")
+#Average by Interval and Date Type (Weekday and Weekend)
+avgType <- aggregate(steps ~ interval + type, newDS, mean)
+xyplot(avgType$steps~avgType$interval|avgType$type,layout=(c(1,2)),type="l",
+       xlab="Interval", ylab="Number of steps")
 ```{r, echo=TRUE}
